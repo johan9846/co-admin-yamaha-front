@@ -1,0 +1,21 @@
+.container-categories {
+
+     padding: 0 30px;
+    .input-search {
+      max-width: 600px;
+    }
+  
+  
+    .button-action {
+      display: flex !important;
+      justify-content: end !important;
+      gap: 30px !important;
+    }
+  
+  
+    .pagination-container {
+  
+      display: flex;
+      justify-content: center;
+    }
+  }

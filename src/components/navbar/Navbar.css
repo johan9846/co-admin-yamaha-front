@@ -1,0 +1,33 @@
+.yamaha-navs-container {
+    background-color: #d3cccc;
+    width: 100%;
+  }
+  
+  .yamaha-navs {
+    display: flex;
+    justify-content: space-evenly; /* Distribuye uniformemente los items */
+    width: 100%;
+  }
+  
+  .nav-item {
+    flex: 1; /* Hace que cada ítem ocupe un espacio igual */
+    text-align: center; /* Centra el texto dentro de cada ítem */
+  }
+  
+  .nav-item a {
+    display: block; /* Permite que el ancho sea respetado */
+    width: 100%;
+    padding: 15px 0 !important; /* Ajusta el padding vertical */
+    color: #000000;
+    font-size: 16px;
+    text-align: center;
+    text-decoration: none;
+  }
+
+  
+  .nav-item-active {
+    border-bottom: 4px solid blue;
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1);
+    font-weight: bold;
+  }
+  

@@ -1,0 +1,24 @@
+
+
+  .container-form-master-services{
+
+
+      .title-activate{
+        color: #08509A;
+        font-size: 25px;
+        font-weight: 700;
+      }
+
+      .custom-button {
+        background-color: #08509a; /* Reemplaza con el color exacto */
+        color: white;
+        padding: 12px;
+        font-weight: 500;
+        border-radius: 8px;
+        margin-top: 20px;
+
+      }
+    
+
+
+}
