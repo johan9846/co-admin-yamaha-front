@@ -26,8 +26,9 @@ export const addProduct = async (body) => {
 };
 
 export const deleteProduct = async (ids) => {
-  return Axios.delete(`${apiUrl}/products/allProducts`, {
-    data: { id: ids }, // Aseguramos que el backend reciba el array correctamente
+  return Axios.delete(`${apiUrl}/products/deleteProduct`, {
+    data: { ids }, // Enviar el array correctamente como "ids"
+    headers: { "Content-Type": "application/json" },
   });
 };
 

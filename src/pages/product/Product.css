@@ -1,0 +1,45 @@
+.container-product {
+    padding: 0 30px;
+  
+  
+  
+  
+    .table-container {
+      .table-header {
+        background-color: #0832de; /* Fondo gris claro */
+      }
+  
+      .table-header th {
+        font-weight: bold; /* Negrilla en los encabezados */
+        color: white;
+      }
+  
+      .table-body .MuiTableCell-root {
+        font-size: 16px !important;
+        font-weight: 500 !important;
+    
+    }
+    
+  
+      .edit-icon {
+        color: #0832de;
+        cursor: pointer;
+      }
+    }
+  
+    .input-search {
+      max-width: 600px;
+    }
+  
+    .button-action {
+      display: flex !important;
+      justify-content: end !important;
+      gap: 30px !important;
+    }
+  
+    .pagination-container {
+      display: flex;
+      justify-content: center;
+    }
+  }
+  

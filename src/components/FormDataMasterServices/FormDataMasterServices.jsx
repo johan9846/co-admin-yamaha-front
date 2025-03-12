@@ -1,136 +1,77 @@
-import { Col, Container, Row } from 'react-grid-system';
-import { TextField, Select, MenuItem, Button, InputLabel } from '@mui/material';
+import { Col, Container, Row } from "react-bootstrap";
+import { TextField, Select, MenuItem, Button, InputLabel } from "@mui/material";
 
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { object, z } from "zod";
 
-import FormControl from '@mui/material/FormControl';
-import FormHelperText from '@mui/material/FormHelperText';
-import { useEffect, useState } from 'react';
-import './FormDataMasterServices.css';
+import FormControl from "@mui/material/FormControl";
+import FormHelperText from "@mui/material/FormHelperText";
+import { useEffect, useMemo, useState } from "react";
+import "./FormDataMasterServices.css";
 
-const schemaServicesUnQuoted = z.object({
-  name: z.string().min(1, 'El nombre es obligatoriounquoted'),
-  service_type_id: z.number().gt(0, { message: 'Ingrese un número mayor a 0' }),
-  quantity: z.number().gt(0, { message: 'Ingrese un número mayor a 0' }),
-
-  unit_measure: z.enum(['gr', 'Kg', 'Tn'], {
-    required_error: 'Selecciona un estado válido',
-  }),
-  unit_cost_value: z.number().gt(0, { message: 'Ingrese un número mayor a 0' }),
-  unit_sales_value: z.number().gt(0, { message: 'Ingrese un número mayor a 0' }),
-  authorized: z.boolean().refine((val) => val === true, {
-    message: 'Debes autorizar el servicio',
-  }),
+const schema = z.object({
+  name: z.string().min(1, "El nombre es obligatorio"),
+  brand: z.string().optional(),
+  model: z.string().optional(),
+  category_id: z.number().gt(0, { message: "Ingrese un número mayor a 0" }),
+  quantity_stock: z.number().gt(0, { message: "Ingrese un número mayor a 0" }),
+  oldPrice: z.number().gt(0, { message: "Ingrese un número mayor a 0" }),
+  price: z.number().gt(0, { message: "Ingrese un número mayor a 0" }),
+  rating: z.number().gt(0, { message: "Ingrese un número mayor a 0" }),
+  image: z.string().min(1, "La imagen es obligatoria"),
+  description: z.string().min(1, "La descripción es obligatoria"),
 });
 
-const schemaServicesAdditional = z.object({
-  name: z.string().min(1, 'El nombre es obligatorio adicional'),
-  service_type_id:z.number().gt(0, { message: 'Ingrese un número mayor a 0' }),
-
-  quantity: z.number().gt(0, { message: 'Ingrese un número mayor a 0' }),
-  unit_measure: z.enum(['gr', 'Kg', 'Tn'], {
-    required_error: 'Selecciona un estado válido',
-  }),
-  unit_cost_value: z.optional(),
-  unit_sales_value: z.optional(),
-  authorized: z.boolean().optional(),
-});
-
-
-
-
-const FormDataMasterServices = ({ onSubmitData, title, typeServiceId, data=[]}) => {
-  const [typeService, setTypeService] = useState(false);
+const FormDataMasterServices = ({ options, title, dataSubmit, infoRow }) => {
   const {
-    register,
-    handleSubmit,
-    formState: { errors },
     control,
-    watch,
+    register,
     setValue,
-    setError,
-    getValues,
-    clearErrors,
+    handleSubmit,
+    watch,
+    formState: { errors },
   } = useForm({
-    mode: 'onTouched',
-    defaultValues: {
-      service_type_id: 1,
-    },
-    resolver: zodResolver(typeService === 1 ? schemaServicesUnQuoted : schemaServicesAdditional), // Se inicia con un esquema por defecto
+    mode: "onTouched",
+
+    resolver: zodResolver(schema), // Se inicia con un esquema por defecto
   });
 
-  const serviceType = watch('service_type_id'); // Observar cambios en el select
+  const formatCurrency = (value) =>
+    `$ ${Number(value || 0).toLocaleString("es-CO")}`;
+
   useEffect(() => {
-    setTypeService(serviceType); // Actualizar el estado cuando cambie el valor
-    if (serviceType !== 1) {
-      clearErrors(['unit_cost_value', 'unit_sales_value', 'authorized']); // Limpiar errores de estos campos
+    console.log(infoRow, "infooo");
+    if (Object.keys(infoRow).length > 0) {
+      setValue("name", infoRow.name || ""); // Asigna el valor de `name` o una cadena vacía si no existe
+      setValue("brand", infoRow.brand || ""); // Asigna el valor de `brand` o una cadena vacía si no existe
+      setValue("model", infoRow.model || ""); // Asigna el valor de `model` o una cadena vacía si no existe
+      setValue("category_id", infoRow.category_id || 0); // Asigna el valor de `category_id` o 0 si no existe
+      setValue("quantity_stock", infoRow.quantity_stock || 0); // Asigna el valor de `quantity_stock` o 0 si no existe
+      setValue("oldPrice", infoRow.oldPrice || 0); // Asigna el valor de `oldPrice` o 0 si no existe
+      setValue("price", infoRow.price || 0); // Asigna el valor de `price` o 0 si no existe
+      setValue("rating", infoRow.rating || 0); // Asigna el valor de `rating` o 0 si no existe
+      setValue("image", infoRow.image || ""); // Asigna el valor de `image` o una cadena vacía si no existe
+      setValue("description", infoRow.description || ""); // Asigna el valor de `description` o una cadena vacía si no existe
+    } else {
+      setValue("name", undefined); // Asigna el valor de `name` o una cadena vacía si no existe
+      setValue("brand", undefined); // Asigna el valor de `brand` o una cadena vacía si no existe
+      setValue("model", undefined); // Asigna el valor de `model` o una cadena vacía si no existe
+      setValue("category_id", undefined); // Asigna el valor de `category_id` o 0 si no existe
+      setValue("quantity_stock", undefined); // Asigna el valor de `quantity_stock` o 0 si no existe
+      setValue("oldPrice", undefined); // Asigna el valor de `oldPrice` o 0 si no existe
+      setValue("price", undefined); // Asigna el valor de `price` o 0 si no existe
+      setValue("rating", undefined); // Asigna el valor de `rating` o 0 si no existe
+      setValue("image", undefined); // Asigna el valor de `image` o una cadena vacía si no existe
+      setValue("description", undefined); // Asigna el valor de `description` o una cadena vacía si no existe
     }
-  }, [serviceType, clearErrors]);
-
-  const formatCurrency = (value) => `$ ${Number(value || 0).toLocaleString('es-CO')}`;
-
-
-
-
-
-
-  const normalizeString = (str) => {
-    return str
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, ''); // Elimina tildes
-  };
-
-
-
-
+  }, [infoRow]);
 
   const onSubmit = (formData) => {
-    const { service_type_id , name} = getValues();
-
-    const normalizedName = normalizeString(name);
-    const hasDuplicate = data.some((row) => normalizeString(row.name) === normalizedName);
-
-
-    console.log(hasDuplicate, "hasDuplicate")
-
-
-    if (hasDuplicate) {
-
-      setError('name', {
-        type: 'manual',
-        message: 'El nombre ya existe.',
-      });
-      return; // Detener la ejecución
-    }
-
-    if (service_type_id !== 1) {
-      formData = {
-        ...formData,
-        unit_cost_value: null,
-        unit_sales_value: null,
-        authorized: null,
-      };
-    }
-
-
-
-
-    console.log(formData, 'data');
-    onSubmitData(formData); // Llamar a la función con los valores ajustados
+    dataSubmit(formData);
   };
 
-
-
-
-
-
-
-
-
-  console.log(errors, 'errroees');
+  console.log(errors, "errroees");
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -138,127 +79,147 @@ const FormDataMasterServices = ({ onSubmitData, title, typeServiceId, data=[]}) 
         <Row>
           <Col>
             <div className="title-activate">{title}</div>
-
             <TextField
               label="Nombre"
-              {...register('name')}
+              {...register("name")}
               error={!!errors.name}
               helperText={errors.name?.message}
               fullWidth
               margin="normal"
             />
+            <TextField
+              label="Marca"
+              {...register("brand")}
+              error={!!errors.brand}
+              helperText={errors.brand?.message}
+              fullWidth
+              margin="normal"
+            />
+            <TextField
+              label="Modelo"
+              {...register("model")}
+              error={!!errors.model}
+              helperText={errors.model?.message}
+              fullWidth
+              margin="normal"
+            />
 
-            <FormControl fullWidth margin="normal" error={!!errors.service_type_id}>
-              <InputLabel id="type-service">Tipo de Servicio</InputLabel>
+            <FormControl fullWidth margin="normal" error={!!errors.category_id}>
+              <InputLabel>Categoria</InputLabel>
               <Controller
-                name="service_type_id"
+                name="category_id"
                 control={control}
                 render={({ field }) => (
                   <Select
                     {...field}
-                    id="type-service"
-                    label="Tipo de Servicio"
-                    value={field.value}
-                    onChange={(e) => field.onChange(Number(e.target.value))} // Convertir a número
+                    label="Categoria"
+                    value={field.value || ""}
+                    onChange={(e) => field.onChange(e.target.value)}
                   >
-                    {typeServiceId.map((service) => (
-                      <MenuItem key={service.id} value={service.id}>
-                        {service.type}
+                    {options.map((category) => (
+                      <MenuItem key={category.id} value={category.id}>
+                        {category.name}
                       </MenuItem>
                     ))}
                   </Select>
                 )}
               />
-              <FormHelperText>{errors.service_type_id?.message}</FormHelperText>
+              <FormHelperText>
+                {!!errors.category_id && "Selecciona una opción"}
+              </FormHelperText>
             </FormControl>
-
             <TextField
               label="Cantidad"
               type="number"
-              {...register('quantity', { setValueAs: (v) => (v === '' ? undefined : Number(v)) })}
-              error={!!errors.quantity}
-              helperText={!!errors.quantity && 'Ingresa un número mayor a 0'}
+              {...register("quantity_stock", {
+                setValueAs: (v) => (v === "" ? undefined : Number(v)),
+              })}
+              error={!!errors.quantity_stock}
+              helperText={
+                !!errors.quantity_stock && "Ingresa un número mayor a 0"
+              }
+              fullWidth
+              margin="normal"
+            />
+            <Controller
+              name="oldPrice"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label="Valor Antiguo"
+                  type="text"
+                  fullWidth
+                  margin="normal"
+                  error={!!errors.oldPrice}
+                  helperText={
+                    !!errors.oldPrice && "Ingresa un número mayor a 0"
+                  }
+                  onChange={(e) => {
+                    const numericValue = e.target.value.replace(/[^0-9]/g, "");
+                    field.onChange(numericValue ? Number(numericValue) : 0);
+                  }}
+                  value={formatCurrency(field.value)}
+                />
+              )}
+            />
+            <Controller
+              name="price"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label="Valor nuevo"
+                  type="text"
+                  fullWidth
+                  margin="normal"
+                  error={!!errors.price}
+                  helperText={!!errors.price && "Ingresa un número mayor a 0"}
+                  onChange={(e) => {
+                    const numericValue = e.target.value.replace(/[^0-9]/g, "");
+                    field.onChange(numericValue ? Number(numericValue) : 0);
+                  }}
+                  value={formatCurrency(field.value)}
+                />
+              )}
+            />
+            <TextField
+              label="Puntuación"
+              {...register("rating", {
+                required: "La puntuación es requerida",
+                valueAsNumber: true,
+              })}
+              type="number"
+              inputProps={{
+                step: "0.1",
+                min: 0, // Evita valores negativos
+                max: 5,
+              }}
+              onInput={(e) => {
+                e.target.value = e.target.value.replace(/[^0-9.]/g, ""); // Solo permite números y punto
+              }}
+              error={!!errors.rating}
+              helperText={errors.rating?.message}
               fullWidth
               margin="normal"
             />
 
-            <FormControl fullWidth margin="normal" error={!!errors.unit_measure}>
-              <InputLabel>Unidad de medida</InputLabel>
-              <Select {...register('unit_measure')} label="Unidad de medida">
-                <MenuItem value="gr">Gramo</MenuItem>
-                <MenuItem value="Kg">Kilogramo</MenuItem>
-                <MenuItem value="Tn">Tonelada</MenuItem>
-              </Select>
-              <FormHelperText>{!!errors.unit_measure && 'Selecciona una opción'}</FormHelperText>
-            </FormControl>
-
-            {serviceType === 1 && (
-              <>
-                <Controller
-                  name="unit_cost_value"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      label="Valor costo unitario"
-                      type="text"
-                      fullWidth
-                      margin="normal"
-                      error={!!errors.unit_cost_value}
-                      helperText={!!errors.unit_cost_value && 'Ingresa un número mayor a 0'}
-                      onChange={(e) => {
-                        const numericValue = e.target.value.replace(/[^0-9]/g, '');
-                        field.onChange(numericValue ? Number(numericValue) : 0);
-                      }}
-                      value={formatCurrency(field.value)}
-                    />
-                  )}
-                />
-
-                <Controller
-                  name="unit_sales_value"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      label="Valor venta Unitario"
-                      type="text"
-                      fullWidth
-                      margin="normal"
-                      error={!!errors.unit_sales_value}
-                      helperText={!!errors.unit_sales_value && 'Ingresa un número mayor a 0'}
-                      onChange={(e) => {
-                        const numericValue = e.target.value.replace(/[^0-9]/g, '');
-                        field.onChange(numericValue ? Number(numericValue) : 0);
-                      }}
-                      value={formatCurrency(field.value)}
-                    />
-                  )}
-                />
-
-                <FormControl fullWidth margin="normal" error={!!errors.authorized}>
-                  <InputLabel>Autorizado</InputLabel>
-                  <Controller
-                    name="authorized"
-                    control={control}
-                    defaultValue={true} // Asegura que inicie con un booleano
-                    render={({ field }) => (
-                      <Select
-                        {...field}
-                        onChange={(e) => field.onChange(e.target.value === 'true')} // Convierte a booleano
-                        value={field.value.toString()} // Convierte booleano a string para Select
-                        label="Autorizado"
-                      >
-                        <MenuItem value="true">Sí</MenuItem>
-                        <MenuItem value="false">No</MenuItem>
-                      </Select>
-                    )}
-                  />
-                  <FormHelperText>{!!errors.authorized && 'Por favor autoriza el servicio'}</FormHelperText>
-                </FormControl>
-              </>
-            )}
-
+            <TextField
+              label="Imagen"
+              {...register("image")}
+              error={!!errors.image}
+              helperText={errors.image?.message}
+              fullWidth
+              margin="normal"
+            />
+            <TextField
+              label="description"
+              {...register("description")}
+              error={!!errors.description}
+              helperText={errors.description?.message}
+              fullWidth
+              margin="normal"
+            />
             <div className="d-flex justify-content-center">
               <Button type="submit" className="custom-button">
                 Guardar

@@ -201,7 +201,7 @@ const Categories = () => {
         
          
          <div className="px-4" >
-          <h2 className="mb-4">{editId ? "Editar categoria" : "Agregar categoria"}</h2>
+          <div className="title-activate mb-4">{editId ? "Editar categoria" : "Agregar categoria"}</div>
         <form onSubmit={handleSubmit(handleOnSubmit)}>
           <TextField
             {...register("name")}
@@ -234,24 +234,24 @@ const Categories = () => {
           </FormControl>
             
             <div className="d-flex justify-content-center">
-          <Button type="submit" variant="contained" sx={{ mt: 2}}>
+          <Button type="submit" variant="contained" sx={{ mt: 2}} className="add-button">
             {editId ? "Actualizar" : "Agregar"}
           </Button></div>
         </form>
         </div>
       </PanelFix>
 
-      <TableContainer component={Paper} sx={{ mt: 3 }}>
+      <TableContainer component={Paper} sx={{ mt: 3 }} className="table-container">
         <Table>
           <TableHead>
-            <TableRow>
+            <TableRow className="table-header">
               <TableCell>ID</TableCell>
               <TableCell>Nombre</TableCell>
               <TableCell>Estado</TableCell>
               <TableCell>Editar</TableCell>
             </TableRow>
           </TableHead>
-          <TableBody>
+          <TableBody className="table-body">
             {paginatedData.map((row) => (
               <TableRow key={row.id}>
                 <TableCell>{row.id}</TableCell>
@@ -271,7 +271,7 @@ const Categories = () => {
         </Table>
       </TableContainer>
 
-      <div className="pagination-container mb-3 mt-2">
+      <div className="pagination-container mb-3 mt-4">
         <Pagination
           count={Math.ceil(filteredData.length / ITEMS_PERPAGE)}
           page={currentPage}
