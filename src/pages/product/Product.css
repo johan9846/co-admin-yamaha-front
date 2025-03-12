@@ -4,11 +4,7 @@
   .table-container {
     max-height: 80vh;
 
-    .table-header th {
-      background-color: #0832de; /* Fondo gris claro */
-    
-    }
-
+  
     .table-header th {
       background-color: #0832de; /* Fondo gris claro */
       font-weight: bold; /* Negrilla en los encabezados */
