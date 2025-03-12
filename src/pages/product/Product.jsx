@@ -266,10 +266,10 @@ const Product = () => {
       </PanelFix>
 
       <TableContainer component={Paper} sx={{ mt: 3 }} className="table-container">
-        <Table>
+        <Table stickyHeader>
           <TableHead>
             <TableRow className="table-header">
-            <TableCell></TableCell>
+             <TableCell>S</TableCell>
               <TableCell>ID</TableCell>
               <TableCell>Nombre</TableCell>
               <TableCell>Marca</TableCell>
