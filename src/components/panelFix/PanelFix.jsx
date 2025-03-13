@@ -7,28 +7,28 @@ const PanelFix = ({ isOpen, onClose, children }) => {
       open={isOpen}
       onClose={onClose}
       fullWidth
-      maxWidth="sm" // Puedes cambiar a "md", "lg", etc.
+      maxWidth="xs" // Puedes cambiar a "md", "lg", etc.
       sx={{
         "& .MuiDialog-paper": {
           borderRadius: 3,
-          padding: 1,
+          padding: "0px 0.5% 20px 0.5%",
           maxHeight: "85vh",
           width: "calc(100% - 20px)",
           margin: "20px",
         },
       }}
     >
+      <div style={{ display: "flex", justifyContent: "flex-end" }}>
+        <IconButton onClick={onClose} sx={{margin:"8px 5px 0px 0px"}}>
+          <CloseOutlinedIcon />
+        </IconButton>
+      </div>
       <DialogContent
-        dividers
+    /*     dividers */
         sx={{
-          padding: "10px 15px", // Aplica el mismo padding que en tu CSS
+          padding: "1px 15px", // Aplica el mismo padding que en tu CSS
         }}
       >
-        <div style={{ display: "flex", justifyContent: "flex-end" }}>
-          <IconButton onClick={onClose}>
-            <CloseOutlinedIcon />
-          </IconButton>
-        </div>
         <div>{children}</div>
       </DialogContent>
     </Dialog>
