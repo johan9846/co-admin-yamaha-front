@@ -31,16 +31,24 @@ const schema = z.object({
     .gt(0, { message: "Ingrese un número mayor a 0" })
     .min(1, { message: "El rating no puede ser menor a 0" })
     .max(5, { message: "El rating no puede ser mayor a 5" }),
-  image: z
-    .union([
-      z.instanceof(File, { message: "Debe subir un archivo válido" }), // Mensaje si no es un archivo válido
-      z.string().url("Debe ser una URL válida"), // ✅ Acepta URLs válidas
-    ])
-    .refine(
-      (file) => typeof file === "string" || file.size <= 5 * 1024 * 1024,
-      "El archivo no debe exceder los 5MB"
-    ),
 
+  images: z
+    .array(
+      z.union([
+        z.instanceof(File, { message: "Debe subir un archivo válido" }), // Valida que sea un archivo
+        z.string().url("Debe ser una URL válida"), // Valida que sea una URL válida
+      ])
+    )
+    .refine(
+      (files) =>
+        files.every((file) => {
+          if (typeof file === "string") {
+            return true; // Si es una URL, no hay restricción de tamaño
+          }
+          return file.size <= 5 * 1024 * 1024; // Si es un archivo, debe ser menor a 5MB
+        }),
+      "Cada archivo no debe exceder los 5MB"
+    ),
   description: z.string().min(1, "La descripción es obligatoria"),
 });
 
@@ -72,6 +80,9 @@ const FormDataMasterServices = ({ options, title, dataSubmit, infoRow }) => {
     });
   }, [infoRow, setValue]); // 👈 `setValue` ya está memoizado internamente
 
+
+
+
   const uploadImage = async (file) => {
     const formData = new FormData();
     formData.append("file", file);
@@ -89,18 +100,34 @@ const FormDataMasterServices = ({ options, title, dataSubmit, infoRow }) => {
     return data.secure_url; // URL de la imagen subida
   };
 
-  const onSubmit = async (formData) => {
-    try {
-      if (formData.image instanceof File) {
-        formData.image = await uploadImage(formData.image);
-      }
-      dataSubmit(formData);
-    } catch (error) {
-      console.error("Error al subir la imagen:", error);
-    }
-  };
+const onSubmit = async (formData) => {
+  try {
+    // Verifica si hay imágenes para subir
+    if (formData.images && formData.images.length > 0) {
+      // Sube cada imagen y obtén sus URLs
+      const uploadedImages = await Promise.all(
+        formData.images.map(async (images) => {
+          if (images instanceof File) {
+            return await uploadImage(images); // Sube la imagen y devuelve la URL
+          }
+          return images; // Si ya es una URL, la devuelve tal cual
+        })
+      );
 
-  console.log(errors, "errores");
+      // Actualiza formData.images con las URLs de las imágenes subidas
+      formData.images = uploadedImages;
+    }
+
+    // Envía los datos al servidor
+       console.log(formData, "formData")
+
+     dataSubmit(formData);  
+  } catch (error) {
+    console.error("Error al subir las imágenes:", error);
+  }
+};
+
+
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -163,12 +190,13 @@ const FormDataMasterServices = ({ options, title, dataSubmit, infoRow }) => {
               {...register("quantity_stock", {
                 valueAsNumber: true,
               })}
-              
               onInput={(e) => {
                 e.target.value = e.target.value.replace(/[^0-9]/g, ""); // Solo permite números y punto
               }}
               error={!!errors.quantity_stock}
-              helperText={!!errors.quantity_stock&&"Ingresa un número mayor a 0"}
+              helperText={
+                !!errors.quantity_stock && "Ingresa un número mayor a 0"
+              }
               fullWidth
               margin="normal"
             />
@@ -230,15 +258,15 @@ const FormDataMasterServices = ({ options, title, dataSubmit, infoRow }) => {
                 e.target.value = e.target.value.replace(/[^0-9]/g, ""); // Solo permite números y punto
               }}
               error={!!errors.rating}
-              helperText={!!errors.rating && "Ingresa un número entre 1 y 5" }
+              helperText={!!errors.rating && "Ingresa un número entre 1 y 5"}
               fullWidth
               margin="normal"
             />
 
             <Controller
-              name="image"
+              name="images" // Cambia el nombre del campo a "images" para reflejar que son múltiples archivos
               control={control}
-              defaultValue={null}
+              defaultValue={[]} // Inicializa con un array vacío
               render={({ field }) => (
                 <Box>
                   <input
@@ -246,27 +274,39 @@ const FormDataMasterServices = ({ options, title, dataSubmit, infoRow }) => {
                     style={{ display: "none" }}
                     id="file-upload"
                     type="file"
+                    multiple // Agrega el atributo multiple para permitir selección de múltiples archivos
                     onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      field.onChange(file); // Actualizar el valor del campo
+                      const files = e.target.files;
+                      if (files) {
+                        const filesArray = Array.from(files); // Convierte FileList a un array
+                        field.onChange(filesArray); // Actualiza el valor del campo con el array de archivos
+                      }
                     }}
                   />
                   <label htmlFor="file-upload">
                     <Button variant="contained" component="span">
-                      Subir imagen
+                      Subir imágenes
                     </Button>
                   </label>
-                  {field.value && (
+                  {field.value && field.value.length > 0 && (
                     <div>
-                      Archivo seleccionado {field.value.name ?? field.value}
+                      Archivos seleccionados:
+                      <ul>
+                        {field.value.map((file, index) => (
+                          <li key={index}>{file.name ?? file}</li>
+                        ))}
+                      </ul>
                     </div>
                   )}
 
-                  {errors.image && <div style={{fontSize:"12px", color:"#d32f2f" }}>{errors.image.message}</div>}
+                  {errors.images && (
+                    <div style={{ fontSize: "12px", color: "#d32f2f" }}>
+                      {errors.images.message}
+                    </div>
+                  )}
                 </Box>
               )}
             />
-
             <TextField
               label="description"
               {...register("description")}

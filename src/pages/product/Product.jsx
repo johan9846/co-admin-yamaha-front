@@ -1,4 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 import {
   InputAdornment,
@@ -18,6 +21,7 @@ import {
   FormHelperText,
   MenuItem,
   Checkbox,
+  Box,
 } from "@mui/material";
 import { Add, Delete, EditOutlined, SearchOutlined } from "@mui/icons-material";
 
@@ -32,6 +36,17 @@ import {
 
 import "./Product.css";
 import FormDataMasterServices from "../../components/FormDataMasterServices/FormDataMasterServices";
+
+const carouselSettings = {
+  dots: false, // Muestra puntos de navegación
+  infinite: true, // Permite navegación infinita
+  speed: 1000, // Velocidad de transición
+  autoplay: true,
+  autoplaySpeed: 1000,
+  slidesToShow: 1, // Muestra una imagen a la vez
+  slidesToScroll: 1, // Avanza de una en una
+  arrows: true, // Muestra flechas de navegación
+};
 
 const Product = () => {
   const [dataTable, setDataTable] = useState([]);
@@ -298,10 +313,33 @@ const Product = () => {
                 <TableCell>{row.model}</TableCell>
                 <TableCell>{row.quantity_stock}</TableCell>
                 <TableCell>{row.category.name}</TableCell>
-                <TableCell sx={{whiteSpace: "nowrap"}}>{formatCurrency(row.oldPrice)}</TableCell>
-                <TableCell  sx={{whiteSpace: "nowrap"}}>{formatCurrency(row.price)}</TableCell>
+                <TableCell sx={{ whiteSpace: "nowrap" }}>
+                  {formatCurrency(row.oldPrice)}
+                </TableCell>
+                <TableCell sx={{ whiteSpace: "nowrap" }}>
+                  {formatCurrency(row.price)}
+                </TableCell>
                 <TableCell>{row.rating}</TableCell>
-                <TableCell><img src={row.image} alt="" style={{width:"70px", height:"80px"}} />
+
+                <TableCell>
+                  <div style={{ width: "120px", height: "100px" }}>
+                    <Slider {...carouselSettings}>
+                      {row.images.map((image, index) => (
+                        <div key={index}>
+                          <img
+                            src={image}
+                            alt={`Imagen ${index + 1}`}
+                            style={{
+                              width: "120px",
+                              height: "100px",
+
+                              borderRadius: "4px",
+                            }}
+                          />
+                        </div>
+                      ))}
+                    </Slider>
+                  </div>
                 </TableCell>
                 <TableCell>{row.description}</TableCell>
                 <TableCell>
