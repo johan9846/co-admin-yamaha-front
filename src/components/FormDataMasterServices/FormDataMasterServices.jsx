@@ -69,9 +69,40 @@ const FormDataMasterServices = ({ options, title, dataSubmit, infoRow }) => {
     });
   }, [infoRow, setValue]); // 👈 `setValue` ya está memoizado internamente
 
-  const onSubmit = (formData) => {
-    dataSubmit(formData);
+/*   const onSubmit = (formData) => {
+    console.log(formData, "formData")
+     dataSubmit(formData); 
   };
+ */
+
+
+
+  const onSubmit = async (formData) => {
+    const formDataToSend = new FormData();
+    formDataToSend.append("name", formData.name);
+    formDataToSend.append("brand", formData.brand);
+    formDataToSend.append("model", formData.model);
+    formDataToSend.append("category_id", formData.category_id);
+    formDataToSend.append("quantity_stock", formData.quantity_stock);
+    formDataToSend.append("oldPrice", formData.oldPrice);
+    formDataToSend.append("price", formData.price);
+    formDataToSend.append("rating", formData.rating);
+    formDataToSend.append("image", formData.image); // Solo el archivo
+    formDataToSend.append("description", formData.description);
+  
+    for (const pair of formDataToSend.entries()) {
+      console.log(pair[0], pair[1]);
+    }
+  
+ 
+    dataSubmit(formDataToSend); 
+ 
+
+  };
+  
+
+
+
 
   console.log(errors, "errroees");
 

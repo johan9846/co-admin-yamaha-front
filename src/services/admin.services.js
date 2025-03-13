@@ -21,8 +21,13 @@ export const getAllProduct = async () => {
   return Axios.get(`${apiUrl}/products/allProducts`);
 };
 
-export const addProduct = async (body) => {
-  return Axios.post(`${apiUrl}/products/addProduct`, body);
+
+export const addProduct = async (formData) => {
+  return Axios.post(`${apiUrl}/products/addProduct`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data", // Indica que se está enviando un archivo
+    },
+  });
 };
 
 export const deleteProduct = async (ids) => {
