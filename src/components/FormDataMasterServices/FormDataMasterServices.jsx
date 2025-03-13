@@ -1,5 +1,13 @@
 import { Col, Container, Row } from "react-bootstrap";
-import { TextField, Select, MenuItem, Button, InputLabel } from "@mui/material";
+import {
+  TextField,
+  Select,
+  MenuItem,
+  Button,
+  InputLabel,
+  Box,
+  Typography,
+} from "@mui/material";
 
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -19,7 +27,20 @@ const schema = z.object({
   oldPrice: z.number().gt(0, { message: "Ingrese un número mayor a 0" }),
   price: z.number().gt(0, { message: "Ingrese un número mayor a 0" }),
   rating: z.number().gt(0, { message: "Ingrese un número mayor a 0" }),
-  image: z.string().min(1, "La imagen es obligatoria"),
+  image: z
+    .custom() // Validar que sea un archivo
+    .refine((file) => file instanceof File, "La imagen es obligatoria") // Validar que no esté vacío
+    .refine(
+      (file) =>
+        ["image/jpg", "image/png", "image/jpeg", "image/webp"].includes(
+          file.type
+        ),
+      "Solo se permiten archivos de tipo jpg, png, jpeg o webp"
+    )
+    .refine(
+      (file) => file.size <= 5 * 1024 * 1024,
+      "El archivo no debe exceder los 5MB"
+    ),
   description: z.string().min(1, "La descripción es obligatoria"),
 });
 
@@ -42,7 +63,7 @@ const FormDataMasterServices = ({ options, title, dataSubmit, infoRow }) => {
 
   useEffect(() => {
     if (!infoRow) return; // Si infoRow es undefined, no hacer nada
-  
+
     Object.entries(infoRow).forEach(([key, value]) => {
       setValue(key, value || (typeof value === "number" ? 0 : ""));
     });
@@ -185,14 +206,36 @@ const FormDataMasterServices = ({ options, title, dataSubmit, infoRow }) => {
               margin="normal"
             />
 
-            <TextField
-              label="Imagen"
-              {...register("image")}
-              error={!!errors.image}
-              helperText={errors.image?.message}
-              fullWidth
-              margin="normal"
+            <Controller
+              name="image"
+              control={control}
+              defaultValue={null}
+              render={({ field }) => (
+                <Box>
+                  <input
+                    accept="image/jpg, image/png, image/jpeg, image/webp"
+                    style={{ display: "none" }}
+                    id="file-upload"
+                    type="file"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      field.onChange(file); // Actualizar el valor del campo
+                    }}
+                  />
+                  <label htmlFor="file-upload">
+                    <Button variant="contained" component="span">
+                      Subir imagen
+                    </Button>
+                  </label>
+                  {field.value && (
+                    <div>Archivo seleccionado {field.value.name}</div>
+                  )}
+
+                  {errors.image && <div>{errors.image.message}</div>}
+                </Box>
+              )}
             />
+
             <TextField
               label="description"
               {...register("description")}
