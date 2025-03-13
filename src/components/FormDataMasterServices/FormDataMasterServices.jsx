@@ -41,31 +41,12 @@ const FormDataMasterServices = ({ options, title, dataSubmit, infoRow }) => {
     `$ ${Number(value || 0).toLocaleString("es-CO")}`;
 
   useEffect(() => {
-    console.log(infoRow, "infooo");
-    if (Object.keys(infoRow).length > 0) {
-      setValue("name", infoRow.name || ""); // Asigna el valor de `name` o una cadena vacía si no existe
-      setValue("brand", infoRow.brand || ""); // Asigna el valor de `brand` o una cadena vacía si no existe
-      setValue("model", infoRow.model || ""); // Asigna el valor de `model` o una cadena vacía si no existe
-      setValue("category_id", infoRow.category_id || 0); // Asigna el valor de `category_id` o 0 si no existe
-      setValue("quantity_stock", infoRow.quantity_stock || 0); // Asigna el valor de `quantity_stock` o 0 si no existe
-      setValue("oldPrice", infoRow.oldPrice || 0); // Asigna el valor de `oldPrice` o 0 si no existe
-      setValue("price", infoRow.price || 0); // Asigna el valor de `price` o 0 si no existe
-      setValue("rating", infoRow.rating || 0); // Asigna el valor de `rating` o 0 si no existe
-      setValue("image", infoRow.image || ""); // Asigna el valor de `image` o una cadena vacía si no existe
-      setValue("description", infoRow.description || ""); // Asigna el valor de `description` o una cadena vacía si no existe
-    } else {
-      setValue("name", undefined); // Asigna el valor de `name` o una cadena vacía si no existe
-      setValue("brand", undefined); // Asigna el valor de `brand` o una cadena vacía si no existe
-      setValue("model", undefined); // Asigna el valor de `model` o una cadena vacía si no existe
-      setValue("category_id", undefined); // Asigna el valor de `category_id` o 0 si no existe
-      setValue("quantity_stock", undefined); // Asigna el valor de `quantity_stock` o 0 si no existe
-      setValue("oldPrice", undefined); // Asigna el valor de `oldPrice` o 0 si no existe
-      setValue("price", undefined); // Asigna el valor de `price` o 0 si no existe
-      setValue("rating", undefined); // Asigna el valor de `rating` o 0 si no existe
-      setValue("image", undefined); // Asigna el valor de `image` o una cadena vacía si no existe
-      setValue("description", undefined); // Asigna el valor de `description` o una cadena vacía si no existe
-    }
-  }, [infoRow]);
+    if (!infoRow) return; // Si infoRow es undefined, no hacer nada
+  
+    Object.entries(infoRow).forEach(([key, value]) => {
+      setValue(key, value || (typeof value === "number" ? 0 : ""));
+    });
+  }, [infoRow, setValue]); // 👈 `setValue` ya está memoizado internamente
 
   const onSubmit = (formData) => {
     dataSubmit(formData);
