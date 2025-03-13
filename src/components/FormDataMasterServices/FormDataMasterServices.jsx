@@ -45,6 +45,9 @@ const schema = z.object({
 });
 
 const FormDataMasterServices = ({ options, title, dataSubmit, infoRow }) => {
+  const CLOUDINARY_UPLOAD_PRESET = "store-yamaha";
+  const CLOUDINARY_CLOUD_NAME = "dsd0w2l0x";
+
   const {
     control,
     register,
@@ -69,11 +72,38 @@ const FormDataMasterServices = ({ options, title, dataSubmit, infoRow }) => {
     });
   }, [infoRow, setValue]); // 👈 `setValue` ya está memoizado internamente
 
-  const onSubmit = (formData) => {
-    dataSubmit(formData);
+  
+  const uploadImage = async (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+
+    const res = await fetch(
+      `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
+
+    const data = await res.json();
+    return data.secure_url; // URL de la imagen subida
   };
 
-  console.log(errors, "errroees");
+  const onSubmit = async (formData) => {
+    try {
+      if (formData.image && formData.image instanceof File) {
+        const imageUrl = await uploadImage(formData.image);
+
+        if (imageUrl) {
+          const updatedFormData = { ...formData, image: imageUrl };
+          dataSubmit(updatedFormData);
+        }
+      }
+    } catch (error) {
+      console.error("Error al subir la imagen:", error);
+    }
+  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
