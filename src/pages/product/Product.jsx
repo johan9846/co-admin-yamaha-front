@@ -255,10 +255,10 @@ const Product = () => {
           setEditId("");
         }}
       >
-        <div className="px-4">
+        <div >
           <FormDataMasterServices
             options={dataCategories}
-            title={editId ? "Editar categoria" : "Agregar categoria"}
+            title={editId ? "Editar Producto" : "Agregar Producto"}
             infoRow={infoRow}
             dataSubmit={handleOnSubmit}
           />

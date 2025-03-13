@@ -199,6 +199,8 @@ const FormDataMasterServices = ({ options, title, dataSubmit, infoRow }) => {
               error={!!errors.description}
               helperText={errors.description?.message}
               fullWidth
+              multiline
+              rows={3}
               margin="normal"
             />
             <div className="d-flex justify-content-center">
