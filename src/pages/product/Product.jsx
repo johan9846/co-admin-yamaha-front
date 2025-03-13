@@ -65,9 +65,9 @@ const Product = () => {
       const { data } = await getAllCategories();
 
       if (data) {
-        const sortedData = data.data.sort(
-          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-        ).filter((category) => category.status === 'Activo')
+        const sortedData = data.data
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+          .filter((category) => category.status === "Activo");
         setDataCategories(sortedData);
       }
     } catch (error) {
@@ -75,9 +75,6 @@ const Product = () => {
     } finally {
     }
   }, []); // Dependencias necesarias
-
-
-
 
   useEffect(() => {
     getProduct();
@@ -105,24 +102,23 @@ const Product = () => {
   };
 
   const handleCheckboxChange = (id) => {
-    setSelectedIds(
-      (prevSelected) =>
-        prevSelected.includes(id)
-          ? prevSelected.filter((selectedId) => selectedId !== id) // Quitar si ya está
-          : [...prevSelected, id]
+    setSelectedIds((prevSelected) =>
+      prevSelected.includes(id)
+        ? prevSelected.filter((selectedId) => selectedId !== id) // Quitar si ya está
+        : [...prevSelected, id]
     );
   };
 
-  console.log(selectedIds, "selectedIds")
+  console.log(selectedIds, "selectedIds");
   const handleDeleteItem = async () => {
     if (selectedIds.length === 0) {
       console.warn("No products selected for deletion");
       return;
     }
-  
+
     try {
       const response = await deleteProduct(selectedIds);
-  
+
       if (response.status === 200) {
         setOpenPanel(false); // Cierra el panel
         await getProduct(); // Recarga la lista de productos
@@ -131,10 +127,12 @@ const Product = () => {
         console.warn("No products found to delete");
       }
     } catch (error) {
-      console.error("Error deleting products:", error.response?.data?.error || error.message);
+      console.error(
+        "Error deleting products:",
+        error.response?.data?.error || error.message
+      );
     }
   };
-  
 
   const handleOnSubmit = async (data) => {
     if (editId) {
@@ -175,8 +173,6 @@ const Product = () => {
     setEditId(row.id);
     setInfoRow(row);
   };
-
- 
 
   const formatCurrency = (value) =>
     `$ ${Number(value || 0).toLocaleString("es-CO")}`;
@@ -229,19 +225,18 @@ const Product = () => {
           Agregar
         </Button>
 
-
         <Button
           variant="contained"
-          endIcon={<Delete sx={{ color: '#0832DE' }} />}
+          endIcon={<Delete sx={{ color: "#0832DE" }} />}
           onClick={handleDeleteItem}
           disabled={selectedIds.length === 0}
           sx={{
-            backgroundColor: '#F6F6F6',
-            color: '#000',
-            '&:hover': {
-              backgroundColor: '#E0E0E0',
+            backgroundColor: "#F6F6F6",
+            color: "#000",
+            "&:hover": {
+              backgroundColor: "#E0E0E0",
             },
-            textTransform: 'none',
+            textTransform: "none",
           }}
         >
           Eliminar
@@ -255,7 +250,7 @@ const Product = () => {
           setEditId("");
         }}
       >
-        <div >
+        <div>
           <FormDataMasterServices
             options={dataCategories}
             title={editId ? "Editar Producto" : "Agregar Producto"}
@@ -265,16 +260,20 @@ const Product = () => {
         </div>
       </PanelFix>
 
-      <TableContainer component={Paper} sx={{ mt: 3 }} className="table-container">
+      <TableContainer
+        component={Paper}
+        sx={{ mt: 3 }}
+        className="table-container"
+      >
         <Table stickyHeader>
           <TableHead>
             <TableRow className="table-header">
-             <TableCell>S</TableCell>
+              <TableCell>S</TableCell>
               <TableCell>ID</TableCell>
               <TableCell>Nombre</TableCell>
               <TableCell>Marca</TableCell>
               <TableCell>Modelo</TableCell>
-              <TableCell>Cantidad(stock)</TableCell>
+              <TableCell>Cantidad</TableCell>
               <TableCell>Categoria</TableCell>
               <TableCell>Precio Old</TableCell>
               <TableCell>Precio New</TableCell>
@@ -282,7 +281,6 @@ const Product = () => {
               <TableCell>Imagen</TableCell>
               <TableCell>Descripción</TableCell>
               <TableCell>Editar</TableCell>
-
             </TableRow>
           </TableHead>
           <TableBody className="table-body">
@@ -300,10 +298,11 @@ const Product = () => {
                 <TableCell>{row.model}</TableCell>
                 <TableCell>{row.quantity_stock}</TableCell>
                 <TableCell>{row.category.name}</TableCell>
-                <TableCell>{formatCurrency(row.oldPrice)}</TableCell>
-                <TableCell>{formatCurrency(row.price)}</TableCell>
+                <TableCell sx={{whiteSpace: "nowrap"}}>{formatCurrency(row.oldPrice)}</TableCell>
+                <TableCell  sx={{whiteSpace: "nowrap"}}>{formatCurrency(row.price)}</TableCell>
                 <TableCell>{row.rating}</TableCell>
-                <TableCell>{row.image}</TableCell>
+                <TableCell><img src={row.image} alt="" style={{width:"70px", height:"80px"}} />
+                </TableCell>
                 <TableCell>{row.description}</TableCell>
                 <TableCell>
                   {

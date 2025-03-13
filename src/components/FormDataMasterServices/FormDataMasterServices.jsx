@@ -26,21 +26,21 @@ const schema = z.object({
   quantity_stock: z.number().gt(0, { message: "Ingrese un número mayor a 0" }),
   oldPrice: z.number().gt(0, { message: "Ingrese un número mayor a 0" }),
   price: z.number().gt(0, { message: "Ingrese un número mayor a 0" }),
-  rating: z.number().gt(0, { message: "Ingrese un número mayor a 0" }),
+  rating: z
+    .number()
+    .gt(0, { message: "Ingrese un número mayor a 0" })
+    .min(1, { message: "El rating no puede ser menor a 0" })
+    .max(5, { message: "El rating no puede ser mayor a 5" }),
   image: z
-    .custom() // Validar que sea un archivo
-    .refine((file) => file instanceof File, "La imagen es obligatoria") // Validar que no esté vacío
+    .union([
+      z.instanceof(File), // ✅ Detecta archivos sin problemas
+      z.string().url("Debe ser una URL válida"), // ✅ Acepta URLs válidas
+    ])
     .refine(
-      (file) =>
-        ["image/jpg", "image/png", "image/jpeg", "image/webp"].includes(
-          file.type
-        ),
-      "Solo se permiten archivos de tipo jpg, png, jpeg o webp"
-    )
-    .refine(
-      (file) => file.size <= 5 * 1024 * 1024,
+      (file) => typeof file === "string" || file.size <= 5 * 1024 * 1024,
       "El archivo no debe exceder los 5MB"
     ),
+
   description: z.string().min(1, "La descripción es obligatoria"),
 });
 
@@ -72,7 +72,6 @@ const FormDataMasterServices = ({ options, title, dataSubmit, infoRow }) => {
     });
   }, [infoRow, setValue]); // 👈 `setValue` ya está memoizado internamente
 
-  
   const uploadImage = async (file) => {
     const formData = new FormData();
     formData.append("file", file);
@@ -92,18 +91,16 @@ const FormDataMasterServices = ({ options, title, dataSubmit, infoRow }) => {
 
   const onSubmit = async (formData) => {
     try {
-      if (formData.image && formData.image instanceof File) {
-        const imageUrl = await uploadImage(formData.image);
-
-        if (imageUrl) {
-          const updatedFormData = { ...formData, image: imageUrl };
-          dataSubmit(updatedFormData);
-        }
+      if (formData.image instanceof File) {
+        formData.image = await uploadImage(formData.image);
       }
+      dataSubmit(formData);
     } catch (error) {
       console.error("Error al subir la imagen:", error);
     }
   };
+
+  console.log(errors, "errores");
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -160,19 +157,22 @@ const FormDataMasterServices = ({ options, title, dataSubmit, infoRow }) => {
                 {!!errors.category_id && "Selecciona una opción"}
               </FormHelperText>
             </FormControl>
+
             <TextField
               label="Cantidad"
-              type="number"
               {...register("quantity_stock", {
-                setValueAs: (v) => (v === "" ? undefined : Number(v)),
+                valueAsNumber: true,
               })}
+              
+              onInput={(e) => {
+                e.target.value = e.target.value.replace(/[^0-9]/g, ""); // Solo permite números y punto
+              }}
               error={!!errors.quantity_stock}
-              helperText={
-                !!errors.quantity_stock && "Ingresa un número mayor a 0"
-              }
+              helperText={!!errors.quantity_stock&&"Ingresa un número mayor a 0"}
               fullWidth
               margin="normal"
             />
+
             <Controller
               name="oldPrice"
               control={control}
@@ -218,20 +218,19 @@ const FormDataMasterServices = ({ options, title, dataSubmit, infoRow }) => {
             <TextField
               label="Puntuación"
               {...register("rating", {
-                required: "La puntuación es requerida",
                 valueAsNumber: true,
               })}
               type="number"
               inputProps={{
-                step: "0.1",
+                step: 1,
                 min: 0, // Evita valores negativos
                 max: 5,
               }}
               onInput={(e) => {
-                e.target.value = e.target.value.replace(/[^0-9.]/g, ""); // Solo permite números y punto
+                e.target.value = e.target.value.replace(/[^0-9]/g, ""); // Solo permite números y punto
               }}
               error={!!errors.rating}
-              helperText={errors.rating?.message}
+              helperText={!!errors.rating && "Ingresa un número entre 1 y 5" }
               fullWidth
               margin="normal"
             />
@@ -258,7 +257,9 @@ const FormDataMasterServices = ({ options, title, dataSubmit, infoRow }) => {
                     </Button>
                   </label>
                   {field.value && (
-                    <div>Archivo seleccionado {field.value.name}</div>
+                    <div>
+                      Archivo seleccionado {field.value.name ?? field.value}
+                    </div>
                   )}
 
                   {errors.image && <div>{errors.image.message}</div>}
