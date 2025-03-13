@@ -33,7 +33,7 @@ const schema = z.object({
     .max(5, { message: "El rating no puede ser mayor a 5" }),
   image: z
     .union([
-      z.instanceof(File), // ✅ Detecta archivos sin problemas
+      z.instanceof(File, { message: "Debe subir un archivo válido" }), // Mensaje si no es un archivo válido
       z.string().url("Debe ser una URL válida"), // ✅ Acepta URLs válidas
     ])
     .refine(
@@ -262,7 +262,7 @@ const FormDataMasterServices = ({ options, title, dataSubmit, infoRow }) => {
                     </div>
                   )}
 
-                  {errors.image && <div>{errors.image.message}</div>}
+                  {errors.image && <div style={{fontSize:"12px", color:"#d32f2f" }}>{errors.image.message}</div>}
                 </Box>
               )}
             />
