@@ -32,13 +32,14 @@ const schema = z.object({
     .min(1, { message: "El rating no puede ser menor a 0" })
     .max(5, { message: "El rating no puede ser mayor a 5" }),
 
-  images: z
+    images: z
     .array(
       z.union([
         z.instanceof(File, { message: "Debe subir un archivo válido" }), // Valida que sea un archivo
         z.string().url("Debe ser una URL válida"), // Valida que sea una URL válida
       ])
     )
+    .min(1, "Debe subir al menos una imagen") // ✅ Asegura que no esté vacío
     .refine(
       (files) =>
         files.every((file) => {
@@ -47,8 +48,9 @@ const schema = z.object({
           }
           return file.size <= 5 * 1024 * 1024; // Si es un archivo, debe ser menor a 5MB
         }),
-      "Cada archivo no debe exceder los 5MB"
+      { message: "Cada archivo no debe exceder los 5MB" }
     ),
+  
   description: z.string().min(1, "La descripción es obligatoria"),
 });
 
@@ -125,6 +127,8 @@ const FormDataMasterServices = ({ options, title, dataSubmit, infoRow }) => {
     }
   };
 
+
+  
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Container fluid className="container-form-master-services">
@@ -255,84 +259,109 @@ const FormDataMasterServices = ({ options, title, dataSubmit, infoRow }) => {
               fullWidth
               margin="normal"
             />
-             <Controller
-      name="images"
-      control={control}
-      defaultValue={[]} // Inicializa con un array vacío
-      render={({ field }) => {
-        
-        useEffect(() => {
-          setAllFiles((prevFiles) => Array.from(new Set([...prevFiles, ...field.value])));
-        }, [field.value]);
+            <Controller
+              name="images"
+              control={control}
+              defaultValue={[]} // Inicializa con un array vacío
+              render={({ field }) => {
+                useEffect(() => {
+                  setAllFiles((prevFiles) =>
+                    Array.from(new Set([...prevFiles, ...field.value]))
+                  );
+                }, [field.value]);
 
-        const handleFileChange = (e) => {
-          const files = Array.from(e.target.files);
-          if (!files.length) return;
+                const handleFileChange = (e) => {
+                  const files = Array.from(e.target.files);
+                  if (!files.length) return;
 
-          setAllFiles((prevFiles) => Array.from(new Set([...prevFiles, ...files])));
-          field.onChange([...field.value, ...files]);
-        };
+                  // Filtrar archivos duplicados
+                  const newFiles = files.filter(
+                    (file) =>
+                      !allFiles.some(
+                        (existingFile) =>
+                          existingFile.name === file.name &&
+                          existingFile.size === file.size
+                      )
+                  );
 
-        const handleCheckboxChange = (file, checked) => {
-          const updatedFiles = checked
-            ? [...field.value, file]
-            : field.value.filter((item) => item !== file);
+                  if (newFiles.length < files.length) {
+                   console.log("puta")
+                  }
 
-          field.onChange(updatedFiles);
-        };
+                  if (newFiles.length > 0) {
+                    setAllFiles((prevFiles) =>
+                      Array.from(new Set([...prevFiles, ...newFiles]))
+                    );
+                    field.onChange([...field.value, ...newFiles]);
+                  }
+                };
 
-        return (
-          <Box>
-            <input
-              accept="image/jpg, image/png, image/jpeg, image/webp"
-              style={{ display: "none" }}
-              id="file-upload"
-              type="file"
-              multiple
-              onChange={handleFileChange}
+                const handleCheckboxChange = (file, checked) => {
+                  const updatedFiles = checked
+                    ? [...field.value, file]
+                    : field.value.filter((item) => item !== file);
+
+                  field.onChange(updatedFiles);
+                };
+
+                return (
+                  <Box>
+                    <input
+                      accept="image/jpg, image/png, image/jpeg, image/webp"
+                      style={{ display: "none" }}
+                      id="file-upload"
+                      type="file"
+                      multiple
+                      onChange={handleFileChange}
+                    />
+                    <label htmlFor="file-upload" className="mt-2">
+                      <Button variant="contained" component="span">
+                        Subir imágenes
+                      </Button>
+                    </label>
+
+                    {/* Lista de archivos seleccionados */}
+                    {allFiles.length > 0 && (
+                      <div>
+                        <div className="mt-4">
+                          Selecciona los archivos que quieres subir:
+                        </div>
+
+                        {allFiles.map((file, index) => (
+                          <div className="check-list mt-2" key={index}>
+                            <input
+                              type="checkbox"
+                              checked={field.value.includes(file)}
+                              onChange={(e) =>
+                                handleCheckboxChange(file, e.target.checked)
+                              }
+                            />
+
+                            {typeof file === "string" ? (
+                              <a
+                                href={file}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                {file}
+                              </a>
+                            ) : (
+                              file.name
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {errors?.images && (
+                      <div style={{ fontSize: "12px", color: "#d32f2f" }}>
+                        {errors.images.message}
+                      </div>
+                    )}
+                  </Box>
+                );
+              }}
             />
-            <label htmlFor="file-upload">
-              <Button variant="contained" component="span">
-                Subir imágenes
-              </Button>
-            </label>
-
-            {/* Lista de archivos seleccionados */}
-            {allFiles.length > 0 && (
-              <div>
-                <div className="mt-2 ">Selecciona los archivos que quieres subir:</div>
-              
-                  {allFiles.map((file, index) => (
-                    <div className="check-list mt-2" key={index}>
-                      <input
-                        type="checkbox"
-                        checked={field.value.includes(file)}
-                        onChange={(e) => handleCheckboxChange(file, e.target.checked)}
-                      />
-                     
-                      {typeof file === "string" ? (
-                        <a href={file} target="_blank" rel="noopener noreferrer">
-                          {file}
-                        </a>
-                      ) : (
-                        file.name
-                      )}
-                    </div>
-                  ))}
-               
-              </div>
-            )}
-
-            {errors?.images && (
-              <div style={{ fontSize: "12px", color: "#d32f2f" }}>
-                {errors.images.message}
-              </div>
-            )}
-          </Box>
-        );
-      }}
-    />
-
             <TextField
               label="description"
               {...register("description")}
