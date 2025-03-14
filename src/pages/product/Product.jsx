@@ -97,8 +97,12 @@ const Product = () => {
   }, [getProduct, getCategories]);
 
   const filteredData = useMemo(() => {
-    const filtered = dataTable.filter((file) =>
-      file.name?.toLowerCase().includes(searchTerm)
+    const filtered = dataTable.filter(
+      (file) =>
+        file.name?.toLowerCase().includes(searchTerm) ||
+        file.brand?.toLowerCase().includes(searchTerm) ||
+        file.model?.toLowerCase().includes(searchTerm) ||
+        file.category.name?.toLowerCase().includes(searchTerm)
     );
 
     setCurrentPage(1);
@@ -124,7 +128,7 @@ const Product = () => {
     );
   };
 
-  console.log(selectedIds, "selectedIds");
+
   const handleDeleteItem = async () => {
     if (selectedIds.length === 0) {
       console.warn("No products selected for deletion");
