@@ -55,6 +55,7 @@ const schema = z.object({
 const FormDataMasterServices = ({ options, title, dataSubmit, infoRow }) => {
   const CLOUDINARY_UPLOAD_PRESET = "store-yamaha";
   const CLOUDINARY_CLOUD_NAME = "dsd0w2l0x";
+  const [allFiles, setAllFiles] = useState([]); // Almacena todos los archivos
 
   const {
     control,
@@ -80,9 +81,6 @@ const FormDataMasterServices = ({ options, title, dataSubmit, infoRow }) => {
     });
   }, [infoRow, setValue]); // 👈 `setValue` ya está memoizado internamente
 
-
-
-
   const uploadImage = async (file) => {
     const formData = new FormData();
     formData.append("file", file);
@@ -100,34 +98,32 @@ const FormDataMasterServices = ({ options, title, dataSubmit, infoRow }) => {
     return data.secure_url; // URL de la imagen subida
   };
 
-const onSubmit = async (formData) => {
-  try {
-    // Verifica si hay imágenes para subir
-    if (formData.images && formData.images.length > 0) {
-      // Sube cada imagen y obtén sus URLs
-      const uploadedImages = await Promise.all(
-        formData.images.map(async (images) => {
-          if (images instanceof File) {
-            return await uploadImage(images); // Sube la imagen y devuelve la URL
-          }
-          return images; // Si ya es una URL, la devuelve tal cual
-        })
-      );
+  const onSubmit = async (formData) => {
+    try {
+      // Verifica si hay imágenes para subir
+      if (formData.images && formData.images.length > 0) {
+        // Sube cada imagen y obtén sus URLs
+        const uploadedImages = await Promise.all(
+          formData.images.map(async (images) => {
+            if (images instanceof File) {
+              return await uploadImage(images); // Sube la imagen y devuelve la URL
+            }
+            return images; // Si ya es una URL, la devuelve tal cual
+          })
+        );
 
-      // Actualiza formData.images con las URLs de las imágenes subidas
-      formData.images = uploadedImages;
+        // Actualiza formData.images con las URLs de las imágenes subidas
+        formData.images = uploadedImages;
+      }
+
+      // Envía los datos al servidor
+      console.log(formData, "formData");
+
+      dataSubmit(formData);
+    } catch (error) {
+      console.error("Error al subir las imágenes:", error);
     }
-
-    // Envía los datos al servidor
-       console.log(formData, "formData")
-
-     dataSubmit(formData);  
-  } catch (error) {
-    console.error("Error al subir las imágenes:", error);
-  }
-};
-
-
+  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -159,7 +155,6 @@ const onSubmit = async (formData) => {
               fullWidth
               margin="normal"
             />
-
             <FormControl fullWidth margin="normal" error={!!errors.category_id}>
               <InputLabel>Categoria</InputLabel>
               <Controller
@@ -184,7 +179,6 @@ const onSubmit = async (formData) => {
                 {!!errors.category_id && "Selecciona una opción"}
               </FormHelperText>
             </FormControl>
-
             <TextField
               label="Cantidad"
               {...register("quantity_stock", {
@@ -200,7 +194,6 @@ const onSubmit = async (formData) => {
               fullWidth
               margin="normal"
             />
-
             <Controller
               name="oldPrice"
               control={control}
@@ -262,51 +255,84 @@ const onSubmit = async (formData) => {
               fullWidth
               margin="normal"
             />
+             <Controller
+      name="images"
+      control={control}
+      defaultValue={[]} // Inicializa con un array vacío
+      render={({ field }) => {
+        
+        useEffect(() => {
+          setAllFiles((prevFiles) => Array.from(new Set([...prevFiles, ...field.value])));
+        }, [field.value]);
 
-            <Controller
-              name="images" // Cambia el nombre del campo a "images" para reflejar que son múltiples archivos
-              control={control}
-              defaultValue={[]} // Inicializa con un array vacío
-              render={({ field }) => (
-                <Box>
-                  <input
-                    accept="image/jpg, image/png, image/jpeg, image/webp"
-                    style={{ display: "none" }}
-                    id="file-upload"
-                    type="file"
-                    multiple // Agrega el atributo multiple para permitir selección de múltiples archivos
-                    onChange={(e) => {
-                      const files = e.target.files;
-                      if (files) {
-                        const filesArray = Array.from(files); // Convierte FileList a un array
-                        field.onChange(filesArray); // Actualiza el valor del campo con el array de archivos
-                      }
-                    }}
-                  />
-                  <label htmlFor="file-upload">
-                    <Button variant="contained" component="span">
-                      Subir imágenes
-                    </Button>
-                  </label>
-                  {field.value && field.value.length > 0 && (
-                    <div>
-                      Archivos seleccionados:
-                      <ul>
-                        {field.value.map((file, index) => (
-                          <li key={index}>{file.name ?? file}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
+        const handleFileChange = (e) => {
+          const files = Array.from(e.target.files);
+          if (!files.length) return;
 
-                  {errors.images && (
-                    <div style={{ fontSize: "12px", color: "#d32f2f" }}>
-                      {errors.images.message}
-                    </div>
-                  )}
-                </Box>
-              )}
+          setAllFiles((prevFiles) => Array.from(new Set([...prevFiles, ...files])));
+          field.onChange([...field.value, ...files]);
+        };
+
+        const handleCheckboxChange = (file, checked) => {
+          const updatedFiles = checked
+            ? [...field.value, file]
+            : field.value.filter((item) => item !== file);
+
+          field.onChange(updatedFiles);
+        };
+
+        return (
+          <Box>
+            <input
+              accept="image/jpg, image/png, image/jpeg, image/webp"
+              style={{ display: "none" }}
+              id="file-upload"
+              type="file"
+              multiple
+              onChange={handleFileChange}
             />
+            <label htmlFor="file-upload">
+              <Button variant="contained" component="span">
+                Subir imágenes
+              </Button>
+            </label>
+
+            {/* Lista de archivos seleccionados */}
+            {allFiles.length > 0 && (
+              <div>
+                <div className="mt-2 ">Selecciona los archivos que quieres subir:</div>
+              
+                  {allFiles.map((file, index) => (
+                    <div className="check-list mt-2" key={index}>
+                      <input
+                        type="checkbox"
+                        checked={field.value.includes(file)}
+                        onChange={(e) => handleCheckboxChange(file, e.target.checked)}
+                      />
+                     
+                      {typeof file === "string" ? (
+                        <a href={file} target="_blank" rel="noopener noreferrer">
+                          {file}
+                        </a>
+                      ) : (
+                        file.name
+                      )}
+                    </div>
+                  ))}
+               
+              </div>
+            )}
+
+            {errors?.images && (
+              <div style={{ fontSize: "12px", color: "#d32f2f" }}>
+                {errors.images.message}
+              </div>
+            )}
+          </Box>
+        );
+      }}
+    />
+
             <TextField
               label="description"
               {...register("description")}
