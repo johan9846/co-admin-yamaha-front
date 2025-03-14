@@ -285,7 +285,7 @@ const FormDataMasterServices = ({ options, title, dataSubmit, infoRow }) => {
                   );
 
                   if (newFiles.length < files.length) {
-                   console.log("puta")
+                   console.log("duplicado")
                   }
 
                   if (newFiles.length > 0) {
