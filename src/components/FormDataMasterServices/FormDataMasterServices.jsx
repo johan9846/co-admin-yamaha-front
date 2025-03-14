@@ -284,8 +284,9 @@ const FormDataMasterServices = ({ options, title, dataSubmit, infoRow }) => {
                       )
                   );
 
+                  console.log(newFiles.length, "NEW", files.length, "files" )
                   if (newFiles.length < files.length) {
-                   console.log("duplicado")
+                    alert("Al menos un archivo ya ha sido agregado anteriormente.");
                   }
 
                   if (newFiles.length > 0) {
