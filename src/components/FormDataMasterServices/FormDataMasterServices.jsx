@@ -81,9 +81,8 @@ const FormDataMasterServices = ({ options, title, dataSubmit, infoRow }) => {
       return;
     }
 
-    setAllFiles((prevFiles) =>
-      Array.from(new Set([...prevFiles, ...infoRow.images]))
-    );
+    setAllFiles(infoRow.images);
+
     Object.entries(infoRow).forEach(([key, value]) => {
       setValue(key, value || (typeof value === "number" ? 0 : ""));
     });
