@@ -32,7 +32,7 @@ const schema = z.object({
     .min(1, { message: "El rating no puede ser menor a 0" })
     .max(5, { message: "El rating no puede ser mayor a 5" }),
 
-    images: z
+  images: z
     .array(
       z.union([
         z.instanceof(File, { message: "Debe subir un archivo válido" }), // Valida que sea un archivo
@@ -50,7 +50,7 @@ const schema = z.object({
         }),
       { message: "Cada archivo no debe exceder los 5MB" }
     ),
-  
+
   description: z.string().min(1, "La descripción es obligatoria"),
 });
 
@@ -77,7 +77,9 @@ const FormDataMasterServices = ({ options, title, dataSubmit, infoRow }) => {
 
   useEffect(() => {
     if (!infoRow) return; // Si infoRow es undefined, no hacer nada
-
+    setAllFiles((prevFiles) =>
+      Array.from(new Set([...prevFiles, ...infoRow.images]))
+    );
     Object.entries(infoRow).forEach(([key, value]) => {
       setValue(key, value || (typeof value === "number" ? 0 : ""));
     });
@@ -127,8 +129,6 @@ const FormDataMasterServices = ({ options, title, dataSubmit, infoRow }) => {
     }
   };
 
-
-  
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Container fluid className="container-form-master-services">
@@ -264,12 +264,6 @@ const FormDataMasterServices = ({ options, title, dataSubmit, infoRow }) => {
               control={control}
               defaultValue={[]} // Inicializa con un array vacío
               render={({ field }) => {
-                useEffect(() => {
-                  setAllFiles((prevFiles) =>
-                    Array.from(new Set([...prevFiles, ...field.value]))
-                  );
-                }, [field.value]);
-
                 const handleFileChange = (e) => {
                   const files = Array.from(e.target.files);
                   if (!files.length) return;
@@ -284,9 +278,11 @@ const FormDataMasterServices = ({ options, title, dataSubmit, infoRow }) => {
                       )
                   );
 
-                  console.log(newFiles.length, "NEW", files.length, "files" )
+                  console.log(newFiles.length, "NEW", files.length, "files");
                   if (newFiles.length < files.length) {
-                    alert("Al menos un archivo ya ha sido agregado anteriormente.");
+                    alert(
+                      "Al menos un archivo ya ha sido agregado anteriormente."
+                    );
                   }
 
                   if (newFiles.length > 0) {
