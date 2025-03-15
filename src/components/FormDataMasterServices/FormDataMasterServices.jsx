@@ -76,7 +76,11 @@ const FormDataMasterServices = ({ options, title, dataSubmit, infoRow }) => {
     `$ ${Number(value || 0).toLocaleString("es-CO")}`;
 
   useEffect(() => {
-    if (!infoRow) return; // Si infoRow es undefined, no hacer nada
+    if (Object.keys(infoRow).length === 0) {
+      console.log("entreee");
+      return;
+    }
+
     setAllFiles((prevFiles) =>
       Array.from(new Set([...prevFiles, ...infoRow.images]))
     );
