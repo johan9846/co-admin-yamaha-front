@@ -128,7 +128,6 @@ const Product = () => {
     );
   };
 
-
   const handleDeleteItem = async () => {
     if (selectedIds.length === 0) {
       console.warn("No products selected for deletion");
@@ -313,8 +312,14 @@ const Product = () => {
                 </TableCell>
                 <TableCell>{row.id}</TableCell>
                 <TableCell>{row.name}</TableCell>
-                <TableCell>{row.brand}</TableCell>
-                <TableCell>{row.model}</TableCell>
+                <TableCell>
+                  {row.brands.map((brand) => brand.name).join(", ")}
+                </TableCell>
+                <TableCell>
+                  {row.brands
+                    .map((brand) => brand.models.join(", "))
+                    .join(" | ")}
+                </TableCell>
                 <TableCell>{row.quantity_stock}</TableCell>
                 <TableCell>{row.category.name}</TableCell>
                 <TableCell sx={{ whiteSpace: "nowrap" }}>

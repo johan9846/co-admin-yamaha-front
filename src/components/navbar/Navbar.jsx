@@ -18,7 +18,7 @@ const Navbar = () => {
             <NavLink
               to={item.id}
               className={({ isActive }) =>
-                isActive ? "nav-link nav-item-active" : "nav-link"
+                isActive ? "nav-item-active" : ""
               }
             >
               {item.title}

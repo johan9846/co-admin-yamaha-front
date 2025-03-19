@@ -7,21 +7,27 @@ import {
   InputLabel,
   Box,
   Typography,
+  IconButton,
 } from "@mui/material";
 
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller,useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { object, z } from "zod";
+import { z } from "zod";
 
 import FormControl from "@mui/material/FormControl";
 import FormHelperText from "@mui/material/FormHelperText";
 import { useEffect, useMemo, useState } from "react";
 import "./FormDataMasterServices.css";
+import { Add, Delete } from "@mui/icons-material";
 
 const schema = z.object({
   name: z.string().min(1, "El nombre es obligatorio"),
-  brand: z.string().optional(),
-  model: z.string().optional(),
+  brands: z.array(
+    z.object({
+      brand: z.string().min(1, "La marca es obligatoria"),
+      models: z.array(z.string().min(1, "El modelo no puede estar vacío")),
+    })
+  ).min(1, "Debe haber al menos una marca"),
   category_id: z.number().gt(0, { message: "Ingrese un número mayor a 0" }),
   quantity_stock: z.number().gt(0, { message: "Ingrese un número mayor a 0" }),
   oldPrice: z.number().gt(0, { message: "Ingrese un número mayor a 0" }),
@@ -68,25 +74,62 @@ const FormDataMasterServices = ({ options, title, dataSubmit, infoRow }) => {
     formState: { errors },
   } = useForm({
     mode: "onTouched",
+    defaultValues: {
+      brands: [{ brand: "", models: [""] }],
+    },
 
     resolver: zodResolver(schema), // Se inicia con un esquema por defecto
   });
 
+
+
+
+  const { fields: brands, append, remove } = useFieldArray({
+      control,
+      name: "brands",
+    });
+  
+    // Manejo dinámico de modelos dentro de cada marca
+    const addModel = (brandIndex) => {
+      const newModels = [...watch(`brands.${brandIndex}.models`), ""];
+      setValue(`brands.${brandIndex}.models`, newModels);
+    };
+  
+    const removeModel = (brandIndex, modelIndex) => {
+      const models = watch(`brands.${brandIndex}.models`);
+      if (models.length > 1) {
+        models.splice(modelIndex, 1);
+        setValue(`brands.${brandIndex}.models`, [...models]);
+      }
+    };
+  
   const formatCurrency = (value) =>
     `$ ${Number(value || 0).toLocaleString("es-CO")}`;
 
-  useEffect(() => {
+
+  
+  useEffect(() => { 
     if (Object.keys(infoRow).length === 0) {
       console.log("entreee");
       return;
     }
-
+  
     setAllFiles(infoRow.images);
-
+  
     Object.entries(infoRow).forEach(([key, value]) => {
-      setValue(key, value || (typeof value === "number" ? 0 : ""));
+      if (key === "brands") {
+        // Transformar brands para el formulario
+        const formattedBrands = value.map((brand) => ({
+          brand: brand.name, // Nombre de la marca
+          models: brand.models, // Modelos de la marca
+        }));
+        setValue("brands", formattedBrands);
+      } else {
+        setValue(key, value || (typeof value === "number" ? 0 : ""));
+      }
     });
-  }, [infoRow, setValue]); // 👈 `setValue` ya está memoizado internamente
+  }, [infoRow, setValue]);
+  
 
   const uploadImage = async (file) => {
     const formData = new FormData();
@@ -126,7 +169,7 @@ const FormDataMasterServices = ({ options, title, dataSubmit, infoRow }) => {
       // Envía los datos al servidor
       console.log(formData, "formData");
 
-      dataSubmit(formData);
+       dataSubmit(formData); 
     } catch (error) {
       console.error("Error al subir las imágenes:", error);
     }
@@ -146,22 +189,54 @@ const FormDataMasterServices = ({ options, title, dataSubmit, infoRow }) => {
               fullWidth
               margin="normal"
             />
-            <TextField
-              label="Marca"
-              {...register("brand")}
-              error={!!errors.brand}
-              helperText={errors.brand?.message}
-              fullWidth
-              margin="normal"
-            />
-            <TextField
-              label="Modelo"
-              {...register("model")}
-              error={!!errors.model}
-              helperText={errors.model?.message}
-              fullWidth
-              margin="normal"
-            />
+           <div>
+              {brands.map((brand, brandIndex) => (
+                <div key={brand.id} className="mb-3">
+                  {/* Marca */}
+                  <TextField
+                    label="Marca"
+                    {...register(`brands.${brandIndex}.brand`)}
+                    error={!!errors.brands?.[brandIndex]?.brand}
+                    helperText={errors.brands?.[brandIndex]?.brand?.message}
+                    fullWidth
+                    margin="normal"
+                  />
+
+                  {/* Modelos */}
+                  {watch(`brands.${brandIndex}.models`).map((_, modelIndex) => (
+                    <div key={modelIndex} className="d-flex align-items-center">
+                      <TextField
+                        label="Modelo"
+                        {...register(`brands.${brandIndex}.models.${modelIndex}`)}
+                        error={!!errors.brands?.[brandIndex]?.models?.[modelIndex]}
+                        helperText={errors.brands?.[brandIndex]?.models?.[modelIndex]?.message}
+                        fullWidth
+                        margin="normal"
+                      />
+                      <IconButton onClick={() => removeModel(brandIndex, modelIndex)}>
+                        <Delete />
+                      </IconButton>
+                    </div>
+                  ))}
+
+                  {/* Botón para agregar modelo */}
+                  <Button onClick={() => addModel(brandIndex)} startIcon={<Add />} variant="outlined">
+                    Agregar modelo
+                  </Button>
+
+                  {/* Botón para eliminar marca */}
+                  <IconButton onClick={() => remove(brandIndex)}>
+                    <Delete />
+                  </IconButton>
+                </div>
+              ))}
+            </div>
+
+            {/* Botón para agregar nueva marca */}
+            <Button onClick={() => append({ brand: "", models: [""] })} startIcon={<Add />} variant="contained">
+              Agregar marca
+            </Button>
+
             <FormControl fullWidth margin="normal" error={!!errors.category_id}>
               <InputLabel>Categoria</InputLabel>
               <Controller
