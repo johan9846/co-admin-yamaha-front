@@ -72,6 +72,7 @@ const FormDataMasterServices = ({ options, title, dataSubmit, infoRow }) => {
     register,
     setValue,
     handleSubmit,
+    getValues,
     watch,
     formState: { errors },
   } = useForm({
@@ -94,15 +95,23 @@ const FormDataMasterServices = ({ options, title, dataSubmit, infoRow }) => {
 
   // Manejo dinámico de modelos dentro de cada marca
   const addModel = (brandIndex) => {
-    const newModels = [...watch(`brands.${brandIndex}.models`), ""];
+    const currentBrands = getValues("brands"); // Obtiene todos los valores de las marcas
+    const currentModels = currentBrands[brandIndex].models || []; // Obtiene los modelos de la marca específica
+    const newModels = [...currentModels, ""]; // Añade un nuevo modelo vacío
+
+    // Actualiza los modelos de la marca específica
     setValue(`brands.${brandIndex}.models`, newModels);
   };
 
   const removeModel = (brandIndex, modelIndex) => {
-    const models = watch(`brands.${brandIndex}.models`);
-    if (models.length > 1) {
-      models.splice(modelIndex, 1);
-      setValue(`brands.${brandIndex}.models`, [...models]);
+    const currentBrands = getValues("brands"); // Obtiene todos los valores de las marcas
+    const currentModels = currentBrands[brandIndex].models; // Obtiene los modelos de la marca específica
+
+    if (currentModels.length > 1) {
+      const updatedModels = currentModels.filter(
+        (_, index) => index !== modelIndex
+      ); // Filtra el modelo a eliminar
+      setValue(`brands.${brandIndex}.models`, updatedModels); // Actualiza los modelos de la marca específica
     }
   };
 
@@ -236,6 +245,7 @@ const FormDataMasterServices = ({ options, title, dataSubmit, infoRow }) => {
                     onClick={() => remove(brandIndex)}
                     startIcon={<Delete />}
                     variant="contained"
+                    disabled={brands.length === 1} // ❌ Deshabilita si solo hay una marca
                   >
                     Eliminar Marca
                   </Button>
