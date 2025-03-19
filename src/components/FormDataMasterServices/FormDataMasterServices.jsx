@@ -10,7 +10,7 @@ import {
   IconButton,
 } from "@mui/material";
 
-import { useForm, Controller,useFieldArray } from "react-hook-form";
+import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
@@ -22,12 +22,14 @@ import { Add, Delete } from "@mui/icons-material";
 
 const schema = z.object({
   name: z.string().min(1, "El nombre es obligatorio"),
-  brands: z.array(
-    z.object({
-      brand: z.string().min(1, "La marca es obligatoria"),
-      models: z.array(z.string().min(1, "El modelo no puede estar vacío")),
-    })
-  ).min(1, "Debe haber al menos una marca"),
+  brands: z
+    .array(
+      z.object({
+        brand: z.string().min(1, "La marca es obligatoria"),
+        models: z.array(z.string().min(1, "El modelo no puede estar vacío")),
+      })
+    )
+    .min(1, "Debe haber al menos una marca"),
   category_id: z.number().gt(0, { message: "Ingrese un número mayor a 0" }),
   quantity_stock: z.number().gt(0, { message: "Ingrese un número mayor a 0" }),
   oldPrice: z.number().gt(0, { message: "Ingrese un número mayor a 0" }),
@@ -81,41 +83,40 @@ const FormDataMasterServices = ({ options, title, dataSubmit, infoRow }) => {
     resolver: zodResolver(schema), // Se inicia con un esquema por defecto
   });
 
+  const {
+    fields: brands,
+    append,
+    remove,
+  } = useFieldArray({
+    control,
+    name: "brands",
+  });
 
+  // Manejo dinámico de modelos dentro de cada marca
+  const addModel = (brandIndex) => {
+    const newModels = [...watch(`brands.${brandIndex}.models`), ""];
+    setValue(`brands.${brandIndex}.models`, newModels);
+  };
 
+  const removeModel = (brandIndex, modelIndex) => {
+    const models = watch(`brands.${brandIndex}.models`);
+    if (models.length > 1) {
+      models.splice(modelIndex, 1);
+      setValue(`brands.${brandIndex}.models`, [...models]);
+    }
+  };
 
-  const { fields: brands, append, remove } = useFieldArray({
-      control,
-      name: "brands",
-    });
-  
-    // Manejo dinámico de modelos dentro de cada marca
-    const addModel = (brandIndex) => {
-      const newModels = [...watch(`brands.${brandIndex}.models`), ""];
-      setValue(`brands.${brandIndex}.models`, newModels);
-    };
-  
-    const removeModel = (brandIndex, modelIndex) => {
-      const models = watch(`brands.${brandIndex}.models`);
-      if (models.length > 1) {
-        models.splice(modelIndex, 1);
-        setValue(`brands.${brandIndex}.models`, [...models]);
-      }
-    };
-  
   const formatCurrency = (value) =>
     `$ ${Number(value || 0).toLocaleString("es-CO")}`;
 
-
-  
-  useEffect(() => { 
+  useEffect(() => {
     if (Object.keys(infoRow).length === 0) {
       console.log("entreee");
       return;
     }
-  
+
     setAllFiles(infoRow.images);
-  
+
     Object.entries(infoRow).forEach(([key, value]) => {
       if (key === "brands") {
         // Transformar brands para el formulario
@@ -129,7 +130,6 @@ const FormDataMasterServices = ({ options, title, dataSubmit, infoRow }) => {
       }
     });
   }, [infoRow, setValue]);
-  
 
   const uploadImage = async (file) => {
     const formData = new FormData();
@@ -169,7 +169,7 @@ const FormDataMasterServices = ({ options, title, dataSubmit, infoRow }) => {
       // Envía los datos al servidor
       console.log(formData, "formData");
 
-       dataSubmit(formData); 
+      dataSubmit(formData);
     } catch (error) {
       console.error("Error al subir las imágenes:", error);
     }
@@ -189,7 +189,7 @@ const FormDataMasterServices = ({ options, title, dataSubmit, infoRow }) => {
               fullWidth
               margin="normal"
             />
-           <div>
+            <div>
               {brands.map((brand, brandIndex) => (
                 <div key={brand.id} className="mb-3">
                   {/* Marca */}
@@ -207,33 +207,48 @@ const FormDataMasterServices = ({ options, title, dataSubmit, infoRow }) => {
                     <div key={modelIndex} className="d-flex align-items-center">
                       <TextField
                         label="Modelo"
-                        {...register(`brands.${brandIndex}.models.${modelIndex}`)}
-                        error={!!errors.brands?.[brandIndex]?.models?.[modelIndex]}
-                        helperText={errors.brands?.[brandIndex]?.models?.[modelIndex]?.message}
+                        {...register(
+                          `brands.${brandIndex}.models.${modelIndex}`
+                        )}
+                        error={
+                          !!errors.brands?.[brandIndex]?.models?.[modelIndex]
+                        }
+                        helperText={
+                          errors.brands?.[brandIndex]?.models?.[modelIndex]
+                            ?.message
+                        }
                         fullWidth
                         margin="normal"
                       />
-                      <IconButton onClick={() => removeModel(brandIndex, modelIndex)}>
+                      <IconButton
+                        onClick={() => removeModel(brandIndex, modelIndex)}
+                      >
                         <Delete />
+                      </IconButton>
+
+                      <IconButton onClick={() => addModel(brandIndex)}>
+                        <Add />
                       </IconButton>
                     </div>
                   ))}
 
-                  {/* Botón para agregar modelo */}
-                  <Button onClick={() => addModel(brandIndex)} startIcon={<Add />} variant="outlined">
-                    Agregar modelo
+                  <Button
+                    onClick={() => remove(brandIndex)}
+                    startIcon={<Delete />}
+                    variant="contained"
+                  >
+                    Eliminar Marca
                   </Button>
-
-                  {/* Botón para eliminar marca */}
-                  <IconButton onClick={() => remove(brandIndex)}>
-                    <Delete />
-                  </IconButton>
                 </div>
               ))}
             </div>
 
             {/* Botón para agregar nueva marca */}
-            <Button onClick={() => append({ brand: "", models: [""] })} startIcon={<Add />} variant="contained">
+            <Button
+              onClick={() => append({ brand: "", models: [""] })}
+              startIcon={<Add />}
+              variant="contained"
+            >
               Agregar marca
             </Button>
 
