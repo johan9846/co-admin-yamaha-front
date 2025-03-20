@@ -231,11 +231,14 @@ const FormDataMasterServices = ({ options, title, dataSubmit, infoRow }) => {
                       />
                       <IconButton
                         onClick={() => removeModel(brandIndex, modelIndex)}
+                        color="error"
+            
                       >
                         <Delete />
                       </IconButton>
 
-                      <IconButton onClick={() => addModel(brandIndex)}>
+                      <IconButton onClick={() => addModel(brandIndex)} color="primary">
+            
                         <Add />
                       </IconButton>
                     </div>
@@ -244,8 +247,10 @@ const FormDataMasterServices = ({ options, title, dataSubmit, infoRow }) => {
                   <Button
                     onClick={() => remove(brandIndex)}
                     startIcon={<Delete />}
-                    variant="contained"
-                    disabled={brands.length === 1} // ❌ Deshabilita si solo hay una marca
+                    variant="outlined"
+                    color="error"
+                    className="ms-2"
+                    disabled={brands.length === 1} // 🚀 Evita borrar si solo hay una marca
                   >
                     Eliminar Marca
                   </Button>
