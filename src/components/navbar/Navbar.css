@@ -1,5 +1,5 @@
 .yamaha-navs-container {
-    background-color: #d3cccc;
+    background-color: #ffffff;
     width: 100%;
   }
   
@@ -27,7 +27,7 @@
   
   .nav-item-active {
     border-bottom: 4px solid blue;
-    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0px 3px 6px #0000001a;
     font-weight: bold;
   }
   

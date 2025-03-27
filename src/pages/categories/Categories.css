@@ -1,21 +1,58 @@
 .container-categories {
+  padding: 0 30px;
 
-     padding: 0 30px;
-    .input-search {
-      max-width: 600px;
+
+  .title-activate{
+    color: #0832de;
+    font-size: 25px;
+    font-weight: 700;
+  }
+
+  .add-button {
+    background-color: #0832de; /* Reemplaza con el color exacto */
+    color: white;
+    padding: 12px;
+    font-weight: 500;
+    border-radius: 8px;
+    margin-top: 20px;
+
+  }
+
+  .table-container {
+    .table-header {
+      background-color: #0832de; /* Fondo gris claro */
     }
-  
-  
-    .button-action {
-      display: flex !important;
-      justify-content: end !important;
-      gap: 30px !important;
+
+    .table-header th {
+      font-weight: bold; /* Negrilla en los encabezados */
+      color: white;
     }
+
+    .table-body .MuiTableCell-root {
+      font-size: 16px !important;
+      font-weight: 500 !important;
   
+  }
   
-    .pagination-container {
-  
-      display: flex;
-      justify-content: center;
+
+    .edit-icon {
+      color: #0832de;
+      cursor: pointer;
     }
   }
+
+  .input-search {
+    max-width: 600px;
+  }
+
+  .button-action {
+    display: flex !important;
+    justify-content: end !important;
+    gap: 30px !important;
+  }
+
+  .pagination-container {
+    display: flex;
+    justify-content: center;
+  }
+}

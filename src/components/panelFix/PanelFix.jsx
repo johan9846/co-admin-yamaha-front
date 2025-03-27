@@ -1,32 +1,37 @@
-import { Col, Row } from "react-bootstrap";
+import { Dialog, DialogContent, IconButton } from "@mui/material";
 import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
 
-import "./PanelFix.css";
-
 const PanelFix = ({ isOpen, onClose, children }) => {
-  if (!isOpen) return null; // No renderizar nada si el modal no está abierto
-
   return (
-    <div className="container-panel-fix">
-      <Row
-        style={{  width: "100%" }}
-        className="d-flex justify-content-center"
+    <Dialog
+      open={isOpen}
+      onClose={onClose}
+      fullWidth
+      maxWidth="xs" // Puedes cambiar a "md", "lg", etc.
+      sx={{
+        "& .MuiDialog-paper": {
+          borderRadius: 3,
+          padding: "0px 0.5% 20px 0.5%",
+          maxHeight: "85vh",
+          width: "calc(100% - 20px)",
+          margin: "20px",
+        },
+      }}
+    >
+      <div style={{ display: "flex", justifyContent: "flex-end" }}>
+        <IconButton onClick={onClose} sx={{margin:"8px 5px 0px 0px"}}>
+          <CloseOutlinedIcon />
+        </IconButton>
+      </div>
+      <DialogContent
+    /*     dividers */
+        sx={{
+          padding: "1px 15px", // Aplica el mismo padding que en tu CSS
+        }}
       >
-        <Col xs={11} sm={10} md={8} lg={8} xl={5} xxl={5} className="modal-fix">
-   
-        <div className="modal-scroll">
-          <div className="icon-close">
-            <CloseOutlinedIcon
-              onClick={onClose}
-              style={{ cursor: "pointer" }}
-            />
-          </div>
-
-          <div className="mt-2">{children}</div>
-          </div>
-        </Col>
-      </Row>
-    </div>
+        <div>{children}</div>
+      </DialogContent>
+    </Dialog>
   );
 };
 
