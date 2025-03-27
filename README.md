@@ -2,6 +2,8 @@
 
 Este **Panel Administrativo** para la gestión de productos y categorías está desarrollado en **React.js**, proporcionando una experiencia intuitiva y eficiente.  
 
+![Descripción de la imagen](src/assets/admin3.PNG)
+
 ## 🚀 Características  
 
 - **Interfaz moderna:** Construida con React.js y estilizada con CSS.  
