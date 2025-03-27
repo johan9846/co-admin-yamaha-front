@@ -1,12 +1,58 @@
-# React + Vite
+# 🛍️ Panel Administrativo E-Commerce con React.js 
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Este Panel Administrativo de productos desarrollado en **React.js**, ofrece una experiencia de compra en línea intuitiva y eficiente.
 
-Currently, two official plugins are available:
+## 🚀 Características
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-## Expanding the ESLint configuration
+- **Interfaz moderna:** Construida con React.js y estilizada con CSS.
+.
 
-If you are developing a production application, we recommend using TypeScript and enable type-aware lint rules. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+
+## 🛠️ Tecnologías Utilizadas  
+
+### **Frontend**  
+- **React.js**: Construcción de una interfaz de usuario moderna y dinámica.  
+- **CSS**: Estilización personalizada para mejorar la experiencia del usuario.
+ - **Cloudinary**: usado para agregar imagenes y obtener url prefirmadas para mostrar los productos.  
+
+
+
+### **Funcionalidades **  
+-Agregar categorias
+-CRUD en los productos incluyendo imagenes en los productos
+---
+
+## 📌 Requisitos y Configuración
+
+
+
+### **Frontend**
+
+Para ejecutar el frontend en tu entorno local:
+
+1. **Clonar el repositorio**
+
+   ```bash
+   git clone https://github.com/johan9846/co-admin-yamaha-front.git
+     
+   ```
+
+2. **Crear el archivo de variables de entorno**
+   crear carpeta env y dentro .env y pegar la variable de entorno
+   ```bash
+  VITE_URL_MASTER_DATA="http://localhost:3000"
+   ```
+
+3. **Instalar dependencias**
+
+   ```bash
+   npm install
+   ```
+
+4. **Ejecutar el proyecto**
+
+   ```bash
+   npm run dev
+   ```
